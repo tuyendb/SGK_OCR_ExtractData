@@ -35,17 +35,7 @@ class MesialContent:
                                             ]
                     os.remove(file_path)
         return self._ms_infor
-    
-    @staticmethod
-    def need_to_merge(line1, line2) -> bool:
-        ntm = False
-        cp_line1 = Line(line1[0], line1[1], line1[2])
-        cp_line2 = Line(line2[0], line2[1], line2[2])
-        if cp_line2.line_content.split(' ')[0][0].islower():
-            ntm = True
-        elif cp_line1.x_cooords[0] - 3 <= cp_line2.x_cooords[0] <= cp_line1.x_cooords[0] + 3:
-            ntm = True
-        return ntm
+
 
     @property
     def merged_paragraphs(self) -> dict:
@@ -80,23 +70,32 @@ class MesialContent:
             if len(total_paragraphs[page_id]) == 0:
                 pass
             else:
+                if len(total_paragraphs[page_id]) == 1:
+                    pass
+                else:
+                    para_list = total_paragraphs[page_id]
+                    for par_id in range(len(para_list) -1):
+                        page_infor = copy_ms_infor[page_id]
+                        sp_para_infor1 = page_infor[1][par_id]
+                        sp_para_infor2 = page_infor[1][par_id + 1]
+                        same_img = page_infor[0]
+                        if CheckConditionsToMergePars(same_img, same_img, sp_para_infor1, sp_para_infor2):
+                            total_paragraphs[page_id][par_id], total_paragraphs[page_id][par_id] = "", para_list[par_id] + para_list[par_id + 1]
+                        else:
+                            pass
                 if len(total_paragraphs[page_id + 1]) == 0:
                     pass 
                 else:
                     pr_list1 = total_paragraphs[page_id]
                     pr_list2 = total_paragraphs[page_id + 1]
                     page1_infor = copy_ms_infor[page_id]
-                    line1 = [page1_infor[0], 
-                            page1_infor[1][-1][1][-1], 
-                            page1_infor[1][-1][0][-1]
-                            ]
+                    page_img1 = page1_infor[0]
                     page2_infor = copy_ms_infor[page_id + 1]
-                    line2 = [page2_infor[0], 
-                            page2_infor[1][0][1][0], 
-                            page2_infor[1][0][0][0]
-                            ]
-                    if self.need_to_merge(line1, line2):
-                        total_paragraphs[page_id][-1], total_paragraphs[page_id + 1][0] = '', pr_list1[-1] + pr_list2[0]
+                    page_img2 = page2_infor[0]
+                    paragr1_infor = page1_infor[1][-1]
+                    paragr2_infor = page2_infor[1][0]
+                    if CheckConditionsToMergePars(page_img1, page_img2, paragr1_infor, paragr2_infor):
+                        total_paragraphs[page_id][-1], total_paragraphs[page_id + 1][0] = "", pr_list1[-1] + pr_list2[0]
                     else: 
                         pass
         id = 0
